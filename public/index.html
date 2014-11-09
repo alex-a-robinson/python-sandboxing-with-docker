@@ -13,11 +13,21 @@
                 $('#program-submit').click(function() {
                     $('#program-out').val('') // Reset
                     var data = $('#program-in').val()
-                    socket.emit('program-in', data)
+                    var pass = $('#password').val()
+                    socket.emit('program-in', [data, pass])
                 })
 
                 socket.on('program-out', function(data) {
                     $('#program-out').val($('#program-out').val() + data)
+                })
+
+                socket.on('program-id', function(data) {
+                    $('#program-id').html(data)
+                })
+
+                socket.on('program-error', function(data) {
+                    $('#program-out').val($('#program-out').val() + data)
+                    $('#program-out').css('background-color', '#F4C1C0')
                 })
             })
         </script>
@@ -41,8 +51,11 @@
     </head>
     <body>
         <div id='container'>
+            <input id='password' placeholder='Password' type='password' />
             <textarea class='in' id='program-in' placeholder='Type here...'></textarea>
             <button id='program-submit'>run</button>
+            <label>id:</label>
+            <span id='program-id'></span>
             <textarea class='out' id='program-out' disabled></textarea>
         </div>
     </body>

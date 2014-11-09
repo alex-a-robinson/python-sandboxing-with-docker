@@ -13,25 +13,32 @@ router.route('/').get(function(req, res) {
 })
 
 io.on('connection', function(socket) {
-    socket.on('program-in', function(data) {
-        writeFile(socket, data, executeFile)
+   socket.on('program-in', function(data) {
+        console.log(data)
+        if (data[1] != 'examplepassword') {
+            socket.emit('program-error', '**ERROR** Incorrect password')
+            return
+        }
+        writeFile(socket, data[0], executeFile)
     })
 })
 
-function executeFile(socket, path) {
+function executeFile(socket, path, id) {
     cmd = spawn('python', [path])
+
+    socket.emit('program-id', id)
 
     cmd.on('error', function(err) {
         console.error(path, err)
     })
 
     cmd.stdout.on('data', function(data) {
-        console.log(data.toString('utf-8'))
         socket.emit('program-out', data.toString('utf-8'))
     })
 
     cmd.stderr.on('data', function(err) {
-        console.error(path, err)
+        socket.emit('program-error', err.toString('utf-8'))
+        console.error(path, err.toString('utf-8'))
     })
 
     cmd.on('close', function(code) {
@@ -47,7 +54,7 @@ function writeFile(socket, data, callback) {
             console.error(err)
         } else {
             console.log('saved: ' + id)
-            callback(socket, path)
+            callback(socket, path, id)
         }
     })
 }
