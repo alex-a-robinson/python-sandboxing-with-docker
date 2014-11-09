@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <title>Encryption tool</title>
+
+        <meta name="viewport" content="width=320" />
+
+        <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+        <script src='/socket.io/socket.io.js'></script>
+        <script type='text/javascript'>
+            $(document).ready(function(){
+                var socket = new io()
+
+                $('#program-submit').click(function() {
+                    var data = $('#program-in').val()
+                    socket.emit('program-in', data)
+                })
+
+                socket.on('program-out', function(data) {
+                    $('#program-out').val(data)
+                })
+            })
+        </script>
+        <style type='text/css' ref='stylesheet'>
+            body {
+                font-family: Helvetica, Arial;
+            }
+
+            div#container {
+                width: 100%;
+                margin: 16px;
+            }
+
+            textarea.out textarea.in {
+                display: block;
+                width: 100%;
+                padding: 8px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id='container'>
+            <textarea class='in' id='program-in' placeholder='Type here...'></textarea>
+            <button id='program-submit'>run</button>
+            <textarea class='out' id='program-out' disabled></textarea>
+        </div>
+    </body>
+</html>
