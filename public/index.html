@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Encryption tool</title>
+        <title>Python sandbox</title>
 
         <meta name="viewport" content="width=320" />
 
@@ -31,28 +31,33 @@
                 })
             })
         </script>
-        <style type='text/css' ref='stylesheet'>
+        <style>
             body {
                 font-family: Helvetica, Arial;
+                margin: 16px;
             }
 
             div#container {
                 width: 100%;
-                margin: 16px;
+                max-width: 800px;
+                margin: auto;
             }
 
-            textarea.out textarea.in {
+            textarea {
                 display: block;
                 width: 100%;
                 padding: 8px;
+                margin-top: 8px;
+                margin-bottom: 8px;
             }
 
         </style>
     </head>
     <body>
         <div id='container'>
-            <input id='password' placeholder='Password' type='password' />
+            <h1>Python sandboxing with Docker</h1>
             <textarea class='in' id='program-in' placeholder='Type here...'></textarea>
+            <input id='password' placeholder='Password' type='password' />
             <button id='program-submit'>run</button>
             <label>id:</label>
             <span id='program-id'></span>

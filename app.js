@@ -1,4 +1,3 @@
-var fs      = require('fs')
 var spawn   = require('child_process').spawn
 var express = require('express')
 var app     = express()
@@ -13,23 +12,32 @@ router.route('/').get(function(req, res) {
 })
 
 io.on('connection', function(socket) {
-   socket.on('program-in', function(data) {
-        console.log(data)
-        if (data[1] != 'examplepassword') {
-            socket.emit('program-error', '**ERROR** Incorrect password')
-            return
-        }
-        writeFile(socket, data[0], executeFile)
-    })
-})
 
-function executeFile(socket, path, id) {
-    cmd = spawn('python', [path])
+    var id = genID()
 
     socket.emit('program-id', id)
 
+
+    socket.on('program-in', function(data) {
+        if (data[1] != 'example') {
+            socket.emit('program-error', '**ERROR** Incorrect password')
+            return
+        }
+
+        executeFile(socket, data[0], id)
+    })
+})
+
+function executeFile(socket, data, id) {
+
+    // replace quotes
+    var re = new RegExp('"', 'g')
+    data = data.replace(re, '\\"')
+
+    cmd = spawn('docker', ['run', '-c', '10', '-m', '5m', '-it', '--rm', 'python:3', 'sh', '-c', 'echo ' + '"' + data + '"' + ' >> /usr/local/bin/app.py && python /usr/local/bin/app.py', ''])
+
     cmd.on('error', function(err) {
-        console.error(path, err)
+        console.error(id, err)
     })
 
     cmd.stdout.on('data', function(data) {
@@ -38,23 +46,10 @@ function executeFile(socket, path, id) {
 
     cmd.stderr.on('data', function(err) {
         socket.emit('program-error', err.toString('utf-8'))
-        console.error(path, err.toString('utf-8'))
-    })
-
-    cmd.on('close', function(code) {
-        console.log(path + ' exited with code: ' + code)
+        console.error(id, err.toString('utf-8'))
     })
 }
 
-function writeFile(socket, data, callback) {
-    id = ("00000000", Math.floor(Math.random() * 4294967296).toString(16)).substr(-8)
-    path = '/tmp/' + id + '.py'
-    fs.writeFile(path, data, function(err) {
-        if (err) {
-            console.error(err)
-        } else {
-            console.log('saved: ' + id)
-            callback(socket, path, id)
-        }
-    })
+function genID() {
+    return ("00000000", Math.floor(Math.random() * 4294967296).toString(16)).substr(-8)
 }
