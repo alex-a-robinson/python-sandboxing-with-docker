@@ -11,12 +11,13 @@
                 var socket = new io()
 
                 $('#program-submit').click(function() {
+                    $('#program-out').val('') // Reset
                     var data = $('#program-in').val()
                     socket.emit('program-in', data)
                 })
 
                 socket.on('program-out', function(data) {
-                    $('#program-out').val(data)
+                    $('#program-out').val($('#program-out').val() + data)
                 })
             })
         </script>
